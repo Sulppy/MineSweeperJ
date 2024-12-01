@@ -138,6 +138,41 @@ class GameManager extends GameBoard {
         }
     }
 
+    void clickOnBoard(){
+        QPushButton button = (QPushButton) sender();
+        if (!isBoardFilled())
+            fillBoard(button);
+        clickOnBoard(button);
+    }
+
+    private void clickOnBoard(QPushButton button){
+        if (button == null) return;
+        int row, col = 0;
+        boolean found = false;
+        for (row = 0; row < difficult.rows; row++) {
+            for (col = 0; col < difficult.cols; col++) {
+                if (btn.get((row) * difficult.cols + col).qbtn == button) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        if(btn.get((row) * difficult.cols + col).isFlagged)
+            return;
+        checkCell(row, col);
+        if(!isEnd())
+            checkWinCondition();
+        else if (isWinCondition() && !isEmited) {
+            setEmited();
+            gameWon.emit();
+        }
+        else if (!isEmited) {
+            setEmited();
+            gameLose.emit();
+        }
+    }
+
 
     //Считаем и выставляем число в клетку - количество мин вокруг клетки
     void handleNumberButtonClick(int row, int col) {
@@ -235,7 +270,6 @@ class GameManager extends GameBoard {
             btn.get(i).qbtn.setPalette(p);
             connect(btn.get(i).qbtn, "clicked()", this,"clickOnBoard()");
             btn.get(i).qbtn.installEventFilter(this);
-//        connect(&btn[i], SIGNAL(pressed()), this, SLOT(eventFilter()));
         }
         countFlags = difficult.n_mines;
         gbox.setAlignment(AlignCenter);
@@ -271,7 +305,7 @@ class GameManager extends GameBoard {
                     btn.get((row) * difficult.cols + col).qbtn.setPalette(p);
                     btn.get((row) * difficult.cols + col).isFlagged = false;
                     connect(button, "clicked()", this, "clickOnBoard()");
-                } else {
+                } else if (countFlags > 0) {
                     button.setText("F");
                     countFlags--;
                     flagCounter.setNum(countFlags);
@@ -284,40 +318,5 @@ class GameManager extends GameBoard {
             }
         }
         return super.eventFilter(obj,event);
-    }
-
-    void clickOnBoard(){
-        QPushButton button = (QPushButton) sender();
-        if (!isBoardFilled())
-            fillBoard(button);
-        clickOnBoard(button);
-    }
-
-    private void clickOnBoard(QPushButton button){
-        if (button == null) return;
-        int row, col = 0;
-        boolean found = false;
-        for (row = 0; row < difficult.rows; row++) {
-            for (col = 0; col < difficult.cols; col++) {
-                if (btn.get((row) * difficult.cols + col).qbtn == button) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) break;
-        }
-        if(btn.get((row) * difficult.cols + col).isFlagged)
-            return;
-        checkCell(row, col);
-        if(!isEnd())
-            checkWinCondition();
-        else if (isWinCondition() && !isEmited) {
-            setEmited();
-            gameWon.emit();
-        }
-        else if (!isEmited) {
-            setEmited();
-            gameLose.emit();
-        }
     }
 }
