@@ -17,16 +17,11 @@ public class SceneManager extends QMainWindow {
     QPushButton NewGame_btn;
     QPushButton Setting_btn;
 
-    QLayout MainLayout;
     QVBoxLayout mainmenuLayout;
     QVBoxLayout gameboardLayout;
 
-    QSize WindowSize;
-    QSize MinWindowSize;
-
     //Машина состояний
     QStateMachine m_machine;
-    QState startState; //Состояние запуска программы
     QState mainmenuState;
     QState inGameState;
     QState victoryState;

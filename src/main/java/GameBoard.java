@@ -38,10 +38,6 @@ public abstract class GameBoard extends QObject {
         BoardFilled = true;
     }
 
-    public void setFilled(boolean filled) {
-        BoardFilled = filled;
-    }
-
     public boolean isBoardFilled() {
         return BoardFilled;
     }

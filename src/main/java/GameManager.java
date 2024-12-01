@@ -16,9 +16,7 @@ import static io.qt.gui.QPalette.ColorRole.*;
 class GameManager extends GameBoard {
 
     private ArrayList<gbutton> btn;
-    private QGridLayout gbox;
     private QLabel flagCounter;
-    private QWidget gbwidget;
     private boolean isEmited;
 
 
@@ -214,8 +212,8 @@ class GameManager extends GameBoard {
         flagCounter = new QLabel();
         countFlags = difficult.n_mines;
         flagCounter.setNum(countFlags);
-        gbwidget = new QWidget();
-        gbox = new QGridLayout(gbwidget);
+        QWidget gbwidget = new QWidget();
+        QGridLayout gbox = new QGridLayout(gbwidget);
         vbox.addWidget(flagCounter, 0,AlignCenter);
         vbox.addWidget(gbwidget);
         btn = new ArrayList<>();
@@ -321,5 +319,5 @@ class GameManager extends GameBoard {
             setEmited();
             gameLose.emit();
         }
-    };
-};
+    }
+}
