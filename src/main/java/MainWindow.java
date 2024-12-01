@@ -1,12 +1,11 @@
 import io.qt.core.QSize;
-import io.qt.core.Qt;
-import io.qt.gui.QBrush;
 import io.qt.gui.QGradient;
 import io.qt.gui.QIcon;
 import io.qt.gui.QPalette;
 import io.qt.widgets.QWidget;
 
 import static io.qt.core.Qt.*;
+import static io.qt.gui.QGradient.CoordinateMode.ObjectBoundingMode;
 import static io.qt.gui.QPalette.*;
 import static io.qt.gui.QGradient.Preset.*;
 import static io.qt.gui.QPalette.ColorGroup.*;
@@ -18,12 +17,11 @@ public class MainWindow extends QWidget {
         mainwindow.setMinimumSize(MinWindowSize);
         setDefaultSize(mainwindow);
         mainwindow.setWindowTitle("Ну привет, сапёр");
-        QIcon icon = new QIcon("icon.png");
         mainwindow.setWindowIcon(new QIcon("Minesweeper_icon.png"));
         QPalette p = new QPalette();
-        QGradient gradient = QGradient.create(MeanFruit);
-        QBrush brush = new QBrush(gradient);
-        p.setBrush(All, ColorRole.Window, brush);
+        QGradient grad = QGradient.create(MeanFruit);
+        grad.setCoordinateMode(ObjectBoundingMode);
+        p.setBrush(All, ColorRole.Window, grad);
         mainwindow.setPalette(p);
         mainwindow.setAutoFillBackground(true);
     }

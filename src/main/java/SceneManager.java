@@ -1,4 +1,3 @@
-import io.qt.Nullable;
 import io.qt.core.*;
 import io.qt.gui.QFont;
 import io.qt.gui.QResizeEvent;
@@ -7,10 +6,11 @@ import io.qt.widgets.*;
 
 import static io.qt.core.QLogging.*;
 import static io.qt.core.Qt.AlignmentFlag.*;
-import static io.qt.QtObject.*;
+import static io.qt.core.Qt.WidgetAttribute.WA_DeleteOnClose;
 
 
 public class SceneManager extends QMainWindow {
+
     public QWidget mainmenuWidget;
     QWidget gameboardWidget;
 
@@ -37,9 +37,8 @@ public class SceneManager extends QMainWindow {
 
     GameManager gm;
 
-
     public SceneManager() {
-        super((QPrivateConstructor) null);
+        super((QWidget) null);
         initMMWidget();
         setupStateMachine();
         MainWindow.setMainSettings(this);
@@ -55,8 +54,8 @@ public class SceneManager extends QMainWindow {
         QFont Font = NewGame_btn.font();
         Font.setPointSizeF(12);
         NewGame_btn.setFont(Font);
-        connect(NewGame_btn, "QPushButton::clicked", this, "startNewGame");
-        connect(Setting_btn, "QPushButton::clicked", this, "btn_Settings()");
+        connect(NewGame_btn.clicked, startNewGame);
+        //connect(Setting_btn.clicked, btn_Settings());
         this.setCentralWidget(mainmenuWidget);
     }
 
@@ -64,7 +63,6 @@ public class SceneManager extends QMainWindow {
         if(gm == null)
             gm = new GameManager();
         m_machine = new QStateMachine();
-        startState = new QState(m_machine);
         setMainMenuS = new QState(m_machine);
         mainmenuState = new QState(m_machine);
         inGameState = new QState(m_machine);
@@ -73,76 +71,96 @@ public class SceneManager extends QMainWindow {
         endGameState = new QState(m_machine);
 
         //===========Раздел добавления сигналов для состояний================================
-        startState.addTransition(this,"setmainMenu", setMainMenuS);
-        setMainMenuS.addTransition(this,"mainMenu", mainmenuState);
-        mainmenuState.addTransition(this,"startNewGame",inGameState);
-        inGameState.addTransition(gm, "GameManager::gameLose", defeatState);
-        inGameState.addTransition(gm, "GameManager::gameWon", victoryState);
-        defeatState.addTransition(this,"endGame", endGameState);
-        victoryState.addTransition(this,"endGame", endGameState);
-        endGameState.addTransition(this,"setmainMenu",setMainMenuS);
+        setMainMenuS.addTransition(mainMenu, mainmenuState);
+        mainmenuState.addTransition(startNewGame,inGameState);
+        inGameState.addTransition(gm.gameLose, defeatState);
+        inGameState.addTransition(gm.gameWon, victoryState);
+        defeatState.addTransition(endGame, endGameState);
+        victoryState.addTransition(endGame, endGameState);
+        endGameState.addTransition(setmainMenu,setMainMenuS);
         //===================================================================================
 
 
-        connect(startState, "QState::entered", () -> {
-            setmainMenu.emit();
-        });
-        connect(setMainMenuS, "QState::entered",()->{
+        QStateMachine.connect(setMainMenuS.entered, () -> {
             setMainMenu();
             mainMenu.emit();
         });
-        connect(mainmenuState, "QState::entered",()->{
+        connect(mainmenuState.entered,()->{
             mainmenuWidget.show();
             MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
             qInfo("Resized buttons");
         });
-        connect(inGameState,"QState::entered",() -> {
+        connect(inGameState.entered,() -> {
             qInfo("NewGame");
             mainmenuWidget.close();
             setGameBoard();
             qInfo("GameBoard created");
         });
-        connect(defeatState, "QState::entered", () -> {
+        connect(defeatState.entered, () -> {
             qInfo("GameOver");
             QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
             inGameState.removeTransition(inGameState.transitions().at(0));
             inGameState.removeTransition(inGameState.transitions().at(0));
             gm.dispose();
             gm = new GameManager();
-            inGameState.addTransition(gm, "GameManager::gameWon", victoryState);
-            inGameState.addTransition(gm, "GameManager::gameLose", defeatState);
+            inGameState.addTransition(gm.gameWon, victoryState);
+            inGameState.addTransition(gm.gameLose, defeatState);
             endGame.emit();
         });
-        connect(victoryState, "QState::entered", ()->{
+        connect(victoryState.entered,()->{
             qInfo("GameOver");
             QMessageBox.information(this, "Game Over", "You win!");
             endGame.emit();
         });
-        connect(endGameState, "QState::entered", ()->{
+        connect(endGameState.entered, ()->{
             inGameState.removeTransition(inGameState.transitions().at(0));
             inGameState.removeTransition(inGameState.transitions().at(0));
             gm.dispose();
             gm = new GameManager();
-            inGameState.addTransition(gm, "GameManager::gameWon", victoryState);
-            inGameState.addTransition(gm, "GameManager::gameLose", defeatState);
+            inGameState.addTransition(gm.gameWon, victoryState);
+            inGameState.addTransition(gm.gameLose, defeatState);
             initMMWidget();
             gameboardWidget.close();
             setmainMenu.emit();
         });
-        m_machine.setInitialState(startState);
+        m_machine.setInitialState(setMainMenuS);
         m_machine.start();
         qInfo("State Machine was started");
     }
 
-    void initMMWidget(); //Инициализация нового mainmenuWidget
+    void initMMWidget() //Инициализация нового mainmenuWidget
+    {
+        mainmenuWidget = new QWidget(this);
+        mainmenuLayout = new QVBoxLayout(mainmenuWidget);
+        mainmenuWidget.setAttribute(WA_DeleteOnClose); //Аттрибут, чтобы виджет удалился при закрытии ( mainmenuWidget.
+    }
 
-    void initGBWidget(); //Инициализация нового gameboardWidget
+    void initGBWidget() //Инициализация нового gameboardWidget
+    {
+        gameboardWidget = new QWidget(this);
+        gameboardLayout = new QVBoxLayout(gameboardWidget);
+        gameboardWidget.setAttribute(WA_DeleteOnClose);
+    }
 
-    void setGameBoard();
+    void setGameBoard() {
+        initGBWidget();
+        gm.createBoard(gameboardLayout, Difficult.difficulty.easy);
+        setCentralWidget(gameboardWidget);
+    }
 
     @Override
     public void resizeEvent(QResizeEvent e) {
-
+        //qInfo() << "Resize Event";
+        if(this.centralWidget() == mainmenuWidget) {
+            QSize Size= new QSize(Math.max(mainmenuWidget.width() / 2, 200),
+                    Math.max(mainmenuWidget.height() / 13, 40));
+            NewGame_btn.setFixedSize(Size);
+            Setting_btn.setFixedSize(Size);
+            QFont Font = NewGame_btn.font();
+            Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
+            NewGame_btn.setFont(Font);
+            Setting_btn.setFont(Font);
+        }
     }
 
 //Основные сигналы для смены состояний приложения

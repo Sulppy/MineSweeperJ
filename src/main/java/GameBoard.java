@@ -3,43 +3,47 @@ import io.qt.core.QObject;
 public abstract class GameBoard extends QObject {
 
     private static boolean End;
-    private boolean isWinCondition;
-    private boolean isBoardFilled;
+    private static boolean WinCondition;
+    private boolean BoardFilled;
     public int countFlags;
     public Difficult difficult;
 
     public GameBoard() {
         End = false;
-        isWinCondition = false;
-        isBoardFilled = false;
+        WinCondition = false;
+        BoardFilled = false;
     }
 
     public void setEnd() {
         End = true;
     }
 
-    public void setEnd(boolean end) {
-        End = end;
-    }
-
     public static boolean isEnd() {
         return End;
     }
 
+    public static boolean isWinCondition() {
+        return WinCondition;
+    }
+
     public void setWin(boolean winCondition) {
-        isWinCondition = winCondition;
+        WinCondition = winCondition;
     }
 
     public void setWin() {
-        isWinCondition = true;
+        WinCondition = true;
     }
 
     public void setFilled() {
-        isBoardFilled = true;
+        BoardFilled = true;
     }
 
     public void setFilled(boolean filled) {
-        isBoardFilled = filled;
+        BoardFilled = filled;
+    }
+
+    public boolean isBoardFilled() {
+        return BoardFilled;
     }
 
     abstract void placeMines();

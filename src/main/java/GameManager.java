@@ -1,18 +1,14 @@
-import io.qt.core.QEvent;
-import io.qt.core.QObject;
-import io.qt.core.QRandomGenerator;
-import io.qt.core.QString;
+import io.qt.core.*;
 import io.qt.gui.QColor;
 import io.qt.gui.QMouseEvent;
 import io.qt.gui.QPalette;
 import io.qt.widgets.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
 import java.util.ArrayList;
 
-import static io.qt.core.QRandomGenerator.*;
+import static io.qt.core.Qt.AlignmentFlag.AlignCenter;
 import static io.qt.core.Qt.GlobalColor.*;
 import static io.qt.core.Qt.MouseButton.*;
 import static io.qt.gui.QPalette.ColorRole.*;
@@ -31,11 +27,50 @@ class GameManager extends GameBoard {
     public final Signal0 gameWon = new Signal0();
 
     private void fillBoard(QPushButton button) {
+        if (button == null) return;
+        int row, col = 0;
+        boolean found = false;
+        for (row = 0; row < difficult.rows; row++) {
+            for (col = 0; col < difficult.cols; col++) {
+                if (btn.get((row) * difficult.cols + col).qbtn == button) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        for(int i = row-1; i <=row+1;i++)
+            for (int j = col-1; j <= col+1; ++j) {
+                btn.get((i) * difficult.cols + j).num = 0;
+            }
+        placeMines();
+        calculateAdjacentMines();
+        setFilled();
 
     }
 
     private void checkCell(int row, int col) {
+        if (btn.get((row) * difficult.cols + col).isMine) {
+            btn.get((row) * difficult.cols + col).qbtn.setText("*");
+            setWin(false);
+            setEnd();
+        } else {
+            if (!btn.get((row) * difficult.cols + col).isMine) {
+                if (countAdjacentMines(row, col) == 0) {
+                    QPalette p = new QPalette();
+                    p.setBrush(Button, gray);
+                    btn.get((row) * difficult.cols + col).qbtn.setPalette(p);
+                    btn.get((row) * difficult.cols + col).qbtn.setEnabled(false);
+                    revealAdjacentCells(row, col);
+                }
+                else {
+                    handleNumberButtonClick(row, col);
+                }
 
+            }
+            if(!isEnd())
+                checkWinCondition();
+        }
     }
 
     void placeMines() {
@@ -108,7 +143,7 @@ class GameManager extends GameBoard {
 
     //Считаем и выставляем число в клетку - количество мин вокруг клетки
     void handleNumberButtonClick(int row, int col) {
-        if (countAdjacentFlags(row, col) == btn.get((row) * difficult.cols + col).num && btn.get((row) * difficult.cols + col).qbtn.text() != "") {
+        if (countAdjacentFlags(row, col) == btn.get((row) * difficult.cols + col).num && !btn.get((row) * difficult.cols + col).qbtn.text().isEmpty()) {
             revealAdjacentCells(row, col);
         }
         if(!isEnd()) {
@@ -162,13 +197,51 @@ class GameManager extends GameBoard {
         isEmited = true;
     }
 
-    public void setEmited(boolean em) {
-        isEmited = em;
-    }
-
     //explicit GameManager(QWidget *parent = nullptr);
     public void createBoard(QVBoxLayout vbox, Difficult.difficulty dif) {
-
+        switch (dif) {
+            case easy:
+                difficult = new Difficult(10, 9, 9);
+                break;
+            case medium:
+                difficult = new Difficult(40, 16, 16);
+                break;
+            case hard:
+                difficult =new Difficult(99, 30, 16);
+                break;
+        }
+        countFlags = difficult.n_mines;
+        flagCounter = new QLabel();
+        countFlags = difficult.n_mines;
+        flagCounter.setNum(countFlags);
+        gbwidget = new QWidget();
+        gbox = new QGridLayout(gbwidget);
+        vbox.addWidget(flagCounter, 0,AlignCenter);
+        vbox.addWidget(gbwidget);
+        btn = new ArrayList<>();
+        for (int r = 0, c = 0, i = 0; i < difficult.rows * difficult.cols; i++) {
+            btn.add(new gbutton());
+            btn.get(i).qbtn = new QPushButton();
+            gbox.addWidget(btn.get(i).qbtn, r, c++, 1, 1);
+            if (c / difficult.cols == 1) {
+                r++;
+                c = 0;
+            }
+            btn.get(i).isFlagged = false;
+            btn.get(i).isMine = false;
+            btn.get(i).num = -1;
+            btn.get(i).qbtn.setFixedSize(30, 30);
+            btn.get(i).qbtn.setText("");
+            QPalette p = new QPalette();
+            p.setBrush(Button, white);
+            btn.get(i).qbtn.setPalette(p);
+            connect(btn.get(i).qbtn, "clicked()", this,"clickOnBoard()");
+            btn.get(i).qbtn.installEventFilter(this);
+//        connect(&btn[i], SIGNAL(pressed()), this, SLOT(eventFilter()));
+        }
+        countFlags = difficult.n_mines;
+        gbox.setAlignment(AlignCenter);
+        gbox.setSpacing(1);
     }
 
 
@@ -179,7 +252,7 @@ class GameManager extends GameBoard {
             if (pMouseEvent.button() == RightButton) {
                 QPushButton button = (QPushButton) obj;
                 if(!button.text().isEmpty() && !button.text().equals("F") || !button.isEnabled())
-                    return QObject.eventFilter(obj,event);
+                    return super.eventFilter(obj,event);
                 int row, col = 0;
                 boolean found = false;
                 for (row = 0; row < difficult.rows; ++row) {
@@ -212,9 +285,41 @@ class GameManager extends GameBoard {
                 }
             }
         }
-        return QObject.eventFilter(obj,event);
+        return super.eventFilter(obj,event);
     }
 
-    void clickOnBoard(){};
-    void clickOnBoard(QPushButton button){};
+    void clickOnBoard(){
+        QPushButton button = (QPushButton) sender();
+        if (!isBoardFilled())
+            fillBoard(button);
+        clickOnBoard(button);
+    }
+
+    private void clickOnBoard(QPushButton button){
+        if (button == null) return;
+        int row, col = 0;
+        boolean found = false;
+        for (row = 0; row < difficult.rows; row++) {
+            for (col = 0; col < difficult.cols; col++) {
+                if (btn.get((row) * difficult.cols + col).qbtn == button) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        if(btn.get((row) * difficult.cols + col).isFlagged)
+            return;
+        checkCell(row, col);
+        if(!isEnd())
+            checkWinCondition();
+        else if (isWinCondition() && !isEmited) {
+            setEmited();
+            gameWon.emit();
+        }
+        else if (!isEmited) {
+            setEmited();
+            gameLose.emit();
+        }
+    };
 };
