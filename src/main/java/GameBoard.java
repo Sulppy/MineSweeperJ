@@ -1,12 +1,5 @@
 import io.qt.core.QObject;
 import io.qt.core.Qt;
-import io.qt.gui.QPalette;
-import io.qt.widgets.QPushButton;
-
-import java.awt.*;
-
-import static io.qt.core.Qt.GlobalColor.darkRed;
-import static io.qt.gui.QPalette.ColorRole.Button;
 
 public abstract class GameBoard extends QObject {
 
