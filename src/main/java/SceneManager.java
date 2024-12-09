@@ -55,8 +55,6 @@ public class SceneManager extends QMainWindow {
     }
 
     public void setupStateMachine() {
-        if(gm == null)
-            gm = new GameManager();
         m_machine = new QStateMachine();
         setMainMenuS = new QState(m_machine);
         mainmenuState = new QState(m_machine);
@@ -68,8 +66,6 @@ public class SceneManager extends QMainWindow {
         //===========Раздел добавления сигналов для состояний================================
         setMainMenuS.addTransition(mainMenu, mainmenuState);
         mainmenuState.addTransition(startNewGame,inGameState);
-        inGameState.addTransition(gm.gameLose, defeatState);
-        inGameState.addTransition(gm.gameWon, victoryState);
         defeatState.addTransition(endGame, endGameState);
         victoryState.addTransition(endGame, endGameState);
         endGameState.addTransition(setmainMenu,setMainMenuS);
@@ -86,7 +82,10 @@ public class SceneManager extends QMainWindow {
             qInfo("Resized buttons");
         });
         connect(inGameState.entered,() -> {
-            qInfo("NewGame");
+            qInfo("NewGame\nInitialisation GameBoard...");
+            gm = new GameManager();
+            inGameState.addTransition(gm.gameWon, victoryState);
+            inGameState.addTransition(gm.gameLose, defeatState);
             mainmenuWidget.close();
             setGameBoard();
             qInfo("GameBoard created");
@@ -94,12 +93,6 @@ public class SceneManager extends QMainWindow {
         connect(defeatState.entered, () -> {
             qInfo("GameOver");
             QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
-            inGameState.removeTransition(inGameState.transitions().at(0));
-            inGameState.removeTransition(inGameState.transitions().at(0));
-            gm.dispose();
-            gm = new GameManager();
-            inGameState.addTransition(gm.gameWon, victoryState);
-            inGameState.addTransition(gm.gameLose, defeatState);
             endGame.emit();
         });
         connect(victoryState.entered,()->{
@@ -111,9 +104,6 @@ public class SceneManager extends QMainWindow {
             inGameState.removeTransition(inGameState.transitions().at(0));
             inGameState.removeTransition(inGameState.transitions().at(0));
             gm.dispose();
-            gm = new GameManager();
-            inGameState.addTransition(gm.gameWon, victoryState);
-            inGameState.addTransition(gm.gameLose, defeatState);
             initMMWidget();
             gameboardWidget.close();
             setmainMenu.emit();

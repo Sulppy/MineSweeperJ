@@ -130,7 +130,6 @@ dependencies {
     implementation "io.qtjambi:qtjambi-statemachine:${qtjambiVersion}"
     implementation "io.qtjambi:qtjambi-help:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-${qtNatives}:${qtjambiVersion}"
-    runtimeOnly "io.qtjambi:qtjambi-help-${qtNatives}:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-statemachine-${qtNatives}:${qtjambiVersion}"
 
 }
