@@ -19,9 +19,6 @@ class GameManager extends GameBoard {
     private boolean isEmited;
 
 
-
-//    public final Signal0 gameLose = new Signal0();
-//    public final Signal0 gameWon = new Signal0();
     public final Signal1<Boolean> endGame = new Signal1<>();
 
     public void createBoard(QVBoxLayout vbox, Difficult.difficulty dif) {

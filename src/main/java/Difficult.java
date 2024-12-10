@@ -11,9 +11,19 @@ public class Difficult {
     }
 
     public enum difficulty{
-        easy,
-        medium,
-        hard
+        easy("Лёгкий"),
+        medium("Средний"),
+        hard("Сложный");
+
+        private final String name;
+
+        difficulty(String str) {
+            this.name = str;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
 }
