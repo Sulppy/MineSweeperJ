@@ -19,16 +19,6 @@ public class SceneManager extends QMainWindow {
     QVBoxLayout mainmenuLayout;
     QVBoxLayout gameboardLayout;
 
-    //Машина состояний
-//    QStateMachine m_machine;
-//    QState mainmenuState;
-//    QState inGameState;
-//    QState victoryState;
-//    QState defeatState;
-//    QState endGameState;
-//    QState setMainMenuS;
-
-
     GameManager gm;
 
     public SceneManager() {
