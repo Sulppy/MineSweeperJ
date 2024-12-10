@@ -114,7 +114,6 @@ public class SceneManager extends QMainWindow {
     public final Signal0 setmainMenu = new Signal0();
     public final Signal0 mainMenu = new Signal0();
     public final Signal0 startNewGame = new Signal0();
-    //public final Signal1<Boolean> endGame = new Signal1<>();
 
 //Слоты
    private void onEndGame(boolean win){
