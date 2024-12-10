@@ -54,42 +54,15 @@ public class SceneManager extends QMainWindow {
     }
 
     public void setupStateMachine() {
-        //m_machine = new QStateMachine();
-
-//        setMainMenuS = new QState(m_machine);
-//        mainmenuState = new QState(m_machine);
-//        inGameState = new QState(m_machine);
-//        defeatState = new QState(m_machine);
-//        victoryState = new QState(m_machine);
-//        endGameState = new QState(m_machine);
-//
-//        //===========Раздел добавления сигналов для состояний================================
-//
-//        setMainMenuS.addTransition(mainMenu, mainmenuState);
-//        mainmenuState.addTransition(startNewGame,inGameState);
-//        defeatState.addTransition(endGame, endGameState);
-//        victoryState.addTransition(endGame, endGameState);
-//        endGameState.addTransition(setmainMenu,setMainMenuS);
-//        //===================================================================================
-
-        connect(setmainMenu, () ->{
+         connect(setmainMenu, () ->{
             setMainMenu();
             mainMenu.emit();
         });
-//        QStateMachine.connect(setMainMenuS.entered, () -> {
-//            setMainMenu();
-//            mainMenu.emit();
-//        });
         connect(mainMenu, () ->{
             mainmenuWidget.show();
             MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
             qInfo("Resized buttons");
         });
-//        connect(mainmenuState.entered,()->{
-//            mainmenuWidget.show();
-//            MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
-//            qInfo("Resized buttons");
-//        });
         connect(startNewGame, () ->{
             qInfo("NewGame\nInitialisation GameBoard...");
             gm = new GameManager();
@@ -98,36 +71,6 @@ public class SceneManager extends QMainWindow {
             setGameBoard();
             qInfo("GameBoard created");
         });
-//        connect(inGameState.entered,() -> {
-//            qInfo("NewGame\nInitialisation GameBoard...");
-//            gm = new GameManager();
-//            inGameState.addTransition(gm.gameWon, victoryState);
-//            inGameState.addTransition(gm.gameLose, defeatState);
-//            mainmenuWidget.close();
-//            setGameBoard();
-//            qInfo("GameBoard created");
-//        });
-        /*connect(defeatState.entered, () -> {
-            qInfo("GameOver");
-            QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
-            endGame.emit();
-        });
-        connect(victoryState.entered,()->{
-            qInfo("GameOver");
-            QMessageBox.information(this, "Game Over", "You win!");
-            endGame.emit;
-        });*/
-
-//        connect(endGameState.entered, ()->{
-//            inGameState.removeTransition(inGameState.transitions().at(0));
-//            inGameState.removeTransition(inGameState.transitions().at(0));
-//            gm.dispose();
-//            initMMWidget();
-//            gameboardWidget.close();
-//            setmainMenu.emit();
-//        });
-//        m_machine.setInitialState(setMainMenuS);
-//        m_machine.start();
         setmainMenu.emit();
         qInfo("State Machine was started");
     }
@@ -183,12 +126,6 @@ public class SceneManager extends QMainWindow {
            QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
        }
 
-       gm.dispose();
-       initMMWidget();
-       gameboardWidget.close();
-       setmainMenu.emit();
-       gm.endGame.disconnect();
-       //inGameState.removeTransition(inGameState.transitions().at(0));
        gm.dispose();
        initMMWidget();
        gameboardWidget.close();
