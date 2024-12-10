@@ -8,7 +8,11 @@ version = '1.0-SNAPSHOT'
 project.ext.lwjglVersion = "3.3.4"
 project.ext.lwjgl3awtVersion = "0.1.8"
 project.ext.jomlVersion = "1.10.7"
-project.ext.qtjambiVersion = "6.7.3"
+project.ext.qtjambiVersion = "6.8.0"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+}
 
 import org.gradle.internal.os.OperatingSystem
 switch (OperatingSystem.current()) {
@@ -127,10 +131,8 @@ dependencies {
     implementation "org.lwjglx:lwjgl3-awt:${lwjgl3awtVersion}"
     implementation "org.joml:joml:${jomlVersion}"
     implementation "io.qtjambi:qtjambi:${qtjambiVersion}"
-    implementation "io.qtjambi:qtjambi-statemachine:${qtjambiVersion}"
-    implementation "io.qtjambi:qtjambi-help:${qtjambiVersion}"
+    //implementation "io.qtjambi:qtjambi-statemachine:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-${qtNatives}:${qtjambiVersion}"
-    runtimeOnly "io.qtjambi:qtjambi-statemachine-${qtNatives}:${qtjambiVersion}"
 
 }
 

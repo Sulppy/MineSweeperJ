@@ -20,8 +20,9 @@ class GameManager extends GameBoard {
 
 
 
-    public final Signal0 gameLose = new Signal0();
-    public final Signal0 gameWon = new Signal0();
+//    public final Signal0 gameLose = new Signal0();
+//    public final Signal0 gameWon = new Signal0();
+    public final Signal1<Boolean> endGame = new Signal1<>();
 
     public void createBoard(QVBoxLayout vbox, Difficult.difficulty dif) {
         switch (dif) {
@@ -309,12 +310,14 @@ class GameManager extends GameBoard {
                 if (isWinCondition() && !isEmited && isEnd()) {
                     setAllFlags();
                     setEmited();
-                    gameWon.emit();
+                    endGame.emit(isWinCondition());
+//                    gameWon.emit();
                     return true;
                 }
                 else if (!isEmited && isEnd()) {
                     setEmited();
-                    gameLose.emit();
+                    endGame.emit(isWinCondition());
+//                    gameLose.emit();
                     return true;
                 }
             }
