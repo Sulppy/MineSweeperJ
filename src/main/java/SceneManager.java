@@ -30,9 +30,9 @@ public class SceneManager extends QMainWindow {
 
     void setMainMenu() {
         NewGame_btn = new QPushButton("New Game", mainmenuWidget);
-        Setting_btn = new QPushButton("Settings", mainmenuWidget);
+        //Setting_btn = new QPushButton("Settings", mainmenuWidget);
         mainmenuLayout.addWidget(NewGame_btn, 0, AlignCenter);
-        mainmenuLayout.addWidget(Setting_btn, 0, AlignCenter);
+        //mainmenuLayout.addWidget(Setting_btn, 0, AlignCenter);
         mainmenuLayout.setSpacing(20);
         mainmenuLayout.setAlignment(AlignCenter);
         QFont Font = NewGame_btn.font();
@@ -92,11 +92,11 @@ public class SceneManager extends QMainWindow {
             QSize Size= new QSize(Math.max(mainmenuWidget.width() / 2, 200),
                     Math.max(mainmenuWidget.height() / 13, 40));
             NewGame_btn.setFixedSize(Size);
-            Setting_btn.setFixedSize(Size);
+            //Setting_btn.setFixedSize(Size);
             QFont Font = NewGame_btn.font();
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
-            Setting_btn.setFont(Font);
+            //Setting_btn.setFont(Font);
         }
     }
 
