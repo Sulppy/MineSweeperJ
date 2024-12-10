@@ -36,12 +36,16 @@ public class SceneManager extends QMainWindow {
 
     private void setChooseDifficult(){
         initCDWidget();
+        difficultyButtons = new ArrayList<>();
         for(Difficult.difficulty dif : Difficult.difficulty.values()){
             difficultyButtons.add(new QPushButton(dif.getName(),difficultyWidget));
             connect(difficultyButtons.getLast().clicked, ()->{
                 startNewGame.emit(dif);
             });
+            difficultyLayout.addWidget(difficultyButtons.getLast(), 0, AlignCenter);
         }
+        difficultyLayout.setSpacing(20);
+        difficultyLayout.setAlignment(AlignCenter);
         this.setCentralWidget(difficultyWidget);
     }
 
@@ -73,7 +77,8 @@ public class SceneManager extends QMainWindow {
             mainmenuWidget.close();
             setChooseDifficult();
             difficultyWidget.show();
-
+            MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
+            qInfo("Resized buttons");
         });
         connect(startNewGame, (Difficult.difficulty dif) ->{
             qInfo("NewGame\nInitialisation GameBoard...");
@@ -117,12 +122,23 @@ public class SceneManager extends QMainWindow {
     @Override
     public void resizeEvent(QResizeEvent e) {
         if(this.centralWidget() == mainmenuWidget) {
-            QSize Size= new QSize(Math.max(mainmenuWidget.width() / 2, 200),
-                    Math.max(mainmenuWidget.height() / 13, 40));
+            QSize Size= new QSize(Math.min(Math.max(mainmenuWidget.width() / 2, 200),600),
+                    Math.min(Math.max(mainmenuWidget.height() / 13, 40), 80));
             NewGame_btn.setFixedSize(Size);
             QFont Font = NewGame_btn.font();
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
+        }
+        else if(this.centralWidget() ==difficultyWidget) {
+            QSize Size= new QSize(Math.min(Math.max(difficultyWidget.width() / 2, 150),500),
+                    Math.min(Math.max(difficultyWidget.height() / 13, 40),60));
+
+            for(QPushButton button : difficultyButtons) {
+                button.setFixedSize(Size);
+                QFont Font = button.font();
+                Font.setPointSizeF(button.height() / 2.5 > 12 ? button.height() / 2.5 : 12);
+                button.setFont(Font);
+            }
         }
     }
 
@@ -141,7 +157,6 @@ public class SceneManager extends QMainWindow {
        else{
            QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
        }
-
        gm.dispose();
        initMMWidget();
        gameboardWidget.close();
