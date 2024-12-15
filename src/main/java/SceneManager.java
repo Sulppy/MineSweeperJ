@@ -34,7 +34,7 @@ public class SceneManager extends QMainWindow {
         MainWindow.setMainSettings(this);
     }
 
-    private void setChooseDifficult(){
+    private void setChooseDifficultWidget(){
         initCDWidget();
         difficultyButtons = new ArrayList<>();
         for(Difficult.difficulty dif : Difficult.difficulty.values()){
@@ -57,7 +57,6 @@ public class SceneManager extends QMainWindow {
         QFont Font = NewGame_btn.font();
         Font.setPointSizeF(12);
         NewGame_btn.setFont(Font);
-        //connect(NewGame_btn.clicked, startNewGame);
         connect(NewGame_btn.clicked, chooseDifficult);
         this.setCentralWidget(mainmenuWidget);
     }
@@ -75,7 +74,7 @@ public class SceneManager extends QMainWindow {
         connect(chooseDifficult, () -> {
             qInfo("Choose difficulty");
             mainmenuWidget.close();
-            setChooseDifficult();
+            setChooseDifficultWidget();
             difficultyWidget.show();
             MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
             qInfo("Resized buttons");
@@ -115,7 +114,7 @@ public class SceneManager extends QMainWindow {
 
     void setGameBoard(Difficult.difficulty dif) {
         initGBWidget();
-        gm.createBoard(gameboardLayout, dif);
+        gm.createBoard(gameboardWidget, dif);
         setCentralWidget(gameboardWidget);
     }
 
