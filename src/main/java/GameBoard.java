@@ -1,7 +1,7 @@
-import io.qt.core.QObject;
 import io.qt.core.Qt;
+import io.qt.widgets.QWidget;
 
-public abstract class GameBoard extends QObject {
+public abstract class GameBoard extends QWidget {
 
     private static boolean End;
     private static boolean WinCondition;
