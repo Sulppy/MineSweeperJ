@@ -13,16 +13,19 @@ class GameManager extends GameBoard {
     QScrollArea scroll;
     private QLabel flagCounter;
     private boolean isEmited;
-    protected QWidget widget;
+    private final QWidget widget;
     protected QWidget topPanel;
 
     public final Signal1<Boolean> endGame = new Signal1<>();
 
+    GameManager(QWidget gameBoard) {
+        widget = gameBoard;
+    }
+
 
     //Установка базовых настроек доски
-    public void createBoard(QWidget gameBoard, Difficult.difficulty dif) {
+    public void createBoard(Difficult.difficulty dif) {
         QWidget gboxWidget = new QWidget();
-        widget = gameBoard;
         int indent = 50;
         switch (dif) {
             case easy:
@@ -38,19 +41,18 @@ class GameManager extends GameBoard {
                 gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
                 break;
         }
-        //QRect rect =  QApplication.getPrimaryScreen().getGeometry();
-
-        topPanel = new QWidget(gameBoard);
-        topPanel.setGeometry(0,0, 600, 80);
+        QRect rect =  QApplication.activeWindow().getRect();
+        topPanel = new QWidget(widget);
+        topPanel.setGeometry(0,0, rect.width(), 40);
         topPanel.setPalette(new QPalette(Qt.GlobalColor.white));
-        topPanel.setAutoFillBackground(false);
+        topPanel.setAutoFillBackground(true);
         countFlags = difficult.n_mines;
         flagCounter = new QLabel(topPanel);
         flagCounter.setNum(countFlags);
-        flagCounter.setAlignment(Qt.AlignmentFlag.AlignCenter);
-        flagCounter.setGeometry(topPanel.getGeometry());
+        flagCounter.setAlignment(Qt.AlignmentFlag.AlignAbsolute);
+        flagCounter.setGeometry(topPanel.getGeometry().width()/2, topPanel.getGeometry().height()/4, topPanel.getGeometry().width(), topPanel.getGeometry().height());
 
-        scroll = new QScrollArea(gameBoard);
+        scroll = new QScrollArea(widget);
         scroll.sizePolicy().setHeightForWidth(true);
         scroll.setAlignment(Qt.AlignmentFlag.AlignCenter);
         scroll.setAutoFillBackground(true);
@@ -61,7 +63,7 @@ class GameManager extends GameBoard {
         scroll.setFrameShape(QFrame.Shape.NoFrame);
         scroll.setAutoFillBackground(false);
         scroll.setGeometry(0,50,0,0);
-        scroll.setMinimumSize(getGeometry().width(),350);
+        scroll.setFixedSize(rect.width(), rect.height()-50);
         scroll.setWidgetResizable(false);
 
 
@@ -69,9 +71,6 @@ class GameManager extends GameBoard {
         gboxWidget.setAutoFillBackground(false);
 
 
-
-//        vbox.addWidget(flagCounter, 0, Qt.AlignmentFlag.AlignCenter);
-//        vbox.addWidget(scroll);
         btn = new ArrayList<>();
         for (int r = 0, c = 0, i = 0; i < difficult.rows * difficult.cols; i++) {
             btn.add(new gbutton());
@@ -339,9 +338,9 @@ class GameManager extends GameBoard {
         }
     }
 
-    @Override
-    public void resizeEvent(QResizeEvent e) {
-        if (widget == null) return;
-        scroll.setGeometry(0, topPanel.height() ,getGeometry().width(), getGeometry().height());
+    public void resize() {
+        topPanel.setGeometry(0,0, widget.width(), 40);
+        flagCounter.setGeometry(widget.width()/2,flagCounter.geometry().y(), widget.width(), flagCounter.geometry().height());
+        scroll.setFixedSize(widget.width(),widget.height()-50);
     }
 }

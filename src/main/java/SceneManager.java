@@ -81,8 +81,6 @@ public class SceneManager extends QMainWindow {
         });
         connect(startNewGame, (Difficult.difficulty dif) ->{
             qInfo("NewGame\nInitialisation GameBoard...");
-            gm = new GameManager();
-            gm.endGame.connect(this::onEndGame);
             difficultyWidget.close();
             setGameBoard(dif);
             qInfo("GameBoard created");
@@ -114,7 +112,9 @@ public class SceneManager extends QMainWindow {
 
     void setGameBoard(Difficult.difficulty dif) {
         initGBWidget();
-        gm.createBoard(gameboardWidget, dif);
+        gm = new GameManager(gameboardWidget);
+        gm.endGame.connect(this::onEndGame);
+        gm.createBoard(dif);
         setCentralWidget(gameboardWidget);
     }
 
@@ -128,7 +128,7 @@ public class SceneManager extends QMainWindow {
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
         }
-        else if(this.centralWidget() ==difficultyWidget) {
+        else if(this.centralWidget() == difficultyWidget) {
             QSize Size= new QSize(Math.min(Math.max(difficultyWidget.width() / 2, 150),500),
                     Math.min(Math.max(difficultyWidget.height() / 13, 40),60));
 
@@ -138,6 +138,9 @@ public class SceneManager extends QMainWindow {
                 Font.setPointSizeF(button.height() / 2.5 > 12 ? button.height() / 2.5 : 12);
                 button.setFont(Font);
             }
+        }
+        else if(this.centralWidget() == gameboardWidget) {
+            gm.resize();
         }
     }
 
