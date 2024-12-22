@@ -47,6 +47,7 @@ dependencies {
     implementation "io.qtjambi:qtjambi:${qtjambiVersion}"
     //implementation "io.qtjambi:qtjambi-statemachine:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-${qtNatives}:${qtjambiVersion}"
+    implementation "com.google.code.findbugs:jsr305:3.0.2"
 }
 
 application {
