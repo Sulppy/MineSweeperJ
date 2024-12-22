@@ -1,19 +1,21 @@
+package game;
+
 import io.qt.core.Qt;
 import io.qt.gui.QMouseEvent;
 import io.qt.widgets.QPushButton;
 import io.qt.widgets.QWidget;
 
-import static io.qt.core.QLogging.qInfo;
-
 public class qGameButtons extends QPushButton {
 
-    public final Signal0 rclicked = new Signal0();
+    public final  Signal0 rclicked;
 
     qGameButtons(QWidget parent) {
+        rclicked = new Signal0();
         super.setParent(parent);
     }
 
-    qGameButtons() {
+    public qGameButtons() {
+        rclicked = new Signal0();
         super.setParent(null);
     }
 

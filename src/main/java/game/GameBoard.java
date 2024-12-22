@@ -1,8 +1,7 @@
-import io.qt.core.Qt;
-import io.qt.gui.QResizeEvent;
-import io.qt.widgets.QWidget;
+package game;
 
-import static io.qt.core.QLogging.qInfo;
+import io.qt.core.Qt;
+import io.qt.widgets.QWidget;
 
 public abstract class GameBoard extends QWidget {
 

@@ -45,7 +45,6 @@ repositories {
 
 dependencies {
     implementation "io.qtjambi:qtjambi:${qtjambiVersion}"
-    //implementation "io.qtjambi:qtjambi-statemachine:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-${qtNatives}:${qtjambiVersion}"
 }
 

@@ -1,4 +1,7 @@
+import game.Difficult;
+import game.GameManager;
 import io.qt.core.*;
+import io.qt.gui.QCloseEvent;
 import io.qt.gui.QFont;
 import io.qt.gui.QResizeEvent;
 import io.qt.widgets.*;
@@ -17,12 +20,12 @@ public class SceneManager extends QMainWindow {
     private QWidget difficultyWidget;
 
     QPushButton NewGame_btn;
+    QPushButton Continue_btn;
 
 
     ArrayList<QPushButton> difficultyButtons;
 
     QVBoxLayout mainmenuLayout;
-    QVBoxLayout gameboardLayout;
     QVBoxLayout difficultyLayout;
 
     GameManager gm;
@@ -39,9 +42,7 @@ public class SceneManager extends QMainWindow {
         difficultyButtons = new ArrayList<>();
         for(Difficult.difficulty dif : Difficult.difficulty.values()){
             difficultyButtons.add(new QPushButton(dif.getName(),difficultyWidget));
-            connect(difficultyButtons.getLast().clicked, ()->{
-                startNewGame.emit(dif);
-            });
+            connect(difficultyButtons.getLast().clicked, ()-> startNewGame.emit(dif));
             difficultyLayout.addWidget(difficultyButtons.getLast(), 0, AlignCenter);
         }
         difficultyLayout.setSpacing(20);
@@ -50,10 +51,15 @@ public class SceneManager extends QMainWindow {
     }
 
     private void setMainMenu() {
-        NewGame_btn = new QPushButton("New Game", mainmenuWidget);
-        mainmenuLayout.addWidget(NewGame_btn, 0, AlignCenter);
         mainmenuLayout.setSpacing(20);
         mainmenuLayout.setAlignment(AlignCenter);
+        if(GameSave.checkFile()){
+            Continue_btn = new QPushButton("Continue", mainmenuWidget);
+            mainmenuLayout.addWidget(Continue_btn, 0, AlignCenter);
+            connect(Continue_btn.clicked, continueGame);
+        }
+        NewGame_btn = new QPushButton("New Game", mainmenuWidget);
+        mainmenuLayout.addWidget(NewGame_btn, 0, AlignCenter);
         QFont Font = NewGame_btn.font();
         Font.setPointSizeF(12);
         NewGame_btn.setFont(Font);
@@ -62,7 +68,7 @@ public class SceneManager extends QMainWindow {
     }
 
     public void setupStateMachine() {
-         connect(setmainMenu, () ->{
+         connect(setMainMenu, () ->{
             setMainMenu();
             mainMenu.emit();
         });
@@ -79,13 +85,18 @@ public class SceneManager extends QMainWindow {
             MainWindow.resetCurrentSize(this); //Переустанавливаем размер на -1, затем на +1 по ширине, чтобы сработал resizeEvent
             qInfo("Resized buttons");
         });
+        connect(continueGame, ()->{
+           qInfo("Continue game");
+           mainmenuWidget.close();
+           setGameBoard(GameSave.loadGame());
+        });
         connect(startNewGame, (Difficult.difficulty dif) ->{
-            qInfo("NewGame\nInitialisation GameBoard...");
+            qInfo("NewGame\nInitialisation Game.GameBoard...");
             difficultyWidget.close();
             setGameBoard(dif);
-            qInfo("GameBoard created");
+            qInfo("Game.GameBoard created");
         });
-        setmainMenu.emit();
+        setMainMenu.emit();
         qInfo("State Machine was started");
     }
 
@@ -99,7 +110,6 @@ public class SceneManager extends QMainWindow {
     void initGBWidget() //Инициализация нового gameboardWidget
     {
         gameboardWidget = new QWidget(this);
-        gameboardLayout = new QVBoxLayout(gameboardWidget);
         gameboardWidget.setAttribute(WA_DeleteOnClose);
     }
 
@@ -112,9 +122,19 @@ public class SceneManager extends QMainWindow {
 
     void setGameBoard(Difficult.difficulty dif) {
         initGBWidget();
-        gm = new GameManager(gameboardWidget);
+        gm = new GameManager();
         gm.endGame.connect(this::onEndGame);
+        gm.setWidget(gameboardWidget);
         gm.createBoard(dif);
+        setCentralWidget(gameboardWidget);
+    }
+
+    void setGameBoard(GameManager gameManager){
+        initGBWidget();
+        gm = new GameManager();
+        gm.endGame.connect(this::onEndGame);
+        gm.setWidget(gameboardWidget);
+        gm.continueBoard(gameManager);
         setCentralWidget(gameboardWidget);
     }
 
@@ -124,9 +144,14 @@ public class SceneManager extends QMainWindow {
             QSize Size= new QSize(Math.min(Math.max(mainmenuWidget.width() / 2, 200),600),
                     Math.min(Math.max(mainmenuWidget.height() / 13, 40), 80));
             NewGame_btn.setFixedSize(Size);
+
             QFont Font = NewGame_btn.font();
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
+            if (Continue_btn != null) {
+                Continue_btn.setFont(Font);
+                Continue_btn.setFixedSize(Size);
+            }
         }
         else if(this.centralWidget() == difficultyWidget) {
             QSize Size= new QSize(Math.min(Math.max(difficultyWidget.width() / 2, 150),500),
@@ -144,10 +169,18 @@ public class SceneManager extends QMainWindow {
         }
     }
 
+    @Override
+    public void closeEvent(QCloseEvent e) {
+        if (this.centralWidget() == gameboardWidget && gm.isBoardFilled()) {
+            GameSave.saveGame(gm);
+        }
+    }
+
 //Основные сигналы для смены состояний приложения
-    public final Signal0 setmainMenu = new Signal0();
+    public final Signal0 setMainMenu = new Signal0();
     public final Signal0 mainMenu = new Signal0();
     public final Signal0 chooseDifficult = new Signal0();
+    public final Signal0 continueGame = new Signal0();
     public final Signal1<Difficult.difficulty> startNewGame = new Signal1<>();
 
 //Слоты
@@ -159,10 +192,13 @@ public class SceneManager extends QMainWindow {
        else{
            QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
        }
+       if (GameSave.deleteFile()){
+           Continue_btn = null;
+       }
        gm.dispose();
        initMMWidget();
        gameboardWidget.close();
-       setmainMenu.emit();
+       setMainMenu.emit();
    }
 
 }

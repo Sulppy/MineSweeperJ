@@ -1,8 +1,12 @@
-public class Difficult {
+package game;
 
-    public int n_mines;
-    public int rows;
-    public int cols;
+import java.io.Serializable;
+
+public class Difficult implements Serializable {
+
+    public final int n_mines;
+    public final int rows;
+    public final int cols;
 
     Difficult(int n_mines, int rows, int cols) {
         this.n_mines = n_mines;
