@@ -9,6 +9,8 @@ import java.util.Random;
 
 import java.util.ArrayList;
 
+import static io.qt.core.QLogging.*;
+
 public class GameManager extends GameBoard {
 
     private ArrayList<gbutton> btn;
@@ -41,6 +43,9 @@ public class GameManager extends GameBoard {
             case hard:
                 difficult = new Difficult(99, 25, 21);
                 break;
+            default:
+                qCritical("Difficult is null!!");
+                QApplication.closeAllWindows();
         }
         countFlags = difficult.n_mines;
         initWidgets();
