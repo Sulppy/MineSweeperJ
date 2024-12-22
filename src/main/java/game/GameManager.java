@@ -90,8 +90,8 @@ public class GameManager extends GameBoard {
         gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
         QRect rect =  Objects.requireNonNull(QApplication.activeWindow()).getRect();
         topPanel = new QWidget(widget);
-        topPanel.setGeometry(0,0, rect.width(), 40);
-        topPanel.setPalette(new QPalette(Qt.GlobalColor.white));
+        topPanel.setGeometry(0,0, rect.width(), 30);
+        topPanel.setPalette(new QPalette(Qt.GlobalColor.lightGray));
         topPanel.setAutoFillBackground(true);
         flagCounter = new QLabel(topPanel);
         flagCounter.setNum(countFlags);
@@ -108,8 +108,8 @@ public class GameManager extends GameBoard {
         scroll.setWidget(gboxWidget);
         scroll.setFrameShape(QFrame.Shape.NoFrame);
         scroll.setAutoFillBackground(false);
-        scroll.setGeometry(0,50,0,0);
-        scroll.setFixedSize(rect.width(), rect.height()-50);
+        scroll.setGeometry(0,30,0,0);
+        scroll.setFixedSize(rect.width(), rect.height()-30);
         scroll.setWidgetResizable(false);
 
 
