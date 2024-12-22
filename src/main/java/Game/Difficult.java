@@ -1,4 +1,8 @@
-public class Difficult {
+package Game;
+
+import java.io.Serializable;
+
+public class Difficult implements Serializable {
 
     public int n_mines;
     public int rows;

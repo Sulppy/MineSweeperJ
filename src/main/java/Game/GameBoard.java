@@ -1,3 +1,5 @@
+package Game;
+
 import io.qt.core.Qt;
 import io.qt.widgets.QWidget;
 

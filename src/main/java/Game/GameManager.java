@@ -1,52 +1,97 @@
+package Game;
+
+import io.qt.QtMetaType;
 import io.qt.core.*;
 import io.qt.gui.*;
 import io.qt.widgets.*;
 import io.qt.core.Qt;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import java.util.ArrayList;
 
-class GameManager extends GameBoard {
+public class GameManager extends GameBoard {
 
     private ArrayList<gbutton> btn;
     QScrollArea scroll;
     private QLabel flagCounter;
     private boolean isEmited;
-    private final QWidget widget;
+    private QWidget widget;
     protected QWidget topPanel;
+    private QWidget gboxWidget;
+    private final int indent = 50;
+    private QGridLayout gbox;
 
     public final Signal1<Boolean> endGame = new Signal1<>();
 
-    GameManager(QWidget gameBoard) {
-        widget = gameBoard;
+    public void setWidget(QWidget widget) {
+        this.widget =widget;
     }
 
+    public void setBtn(ArrayList<gbutton> btn) {
+        this.btn = btn;
+    }
 
     //Установка базовых настроек доски
     public void createBoard(Difficult.difficulty dif) {
-        QWidget gboxWidget = new QWidget();
-        int indent = 50;
         switch (dif) {
             case easy:
                 difficult = new Difficult(10, 9, 9);
-                gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
                 break;
             case medium:
                 difficult = new Difficult(40, 16, 16);
-                gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
                 break;
             case hard:
                 difficult = new Difficult(99, 25, 21);
-                gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
                 break;
         }
+        countFlags = difficult.n_mines;
+        initWidgets();
+
+        btn = new ArrayList<>();
+        for(int i = 0; i < difficult.rows * difficult.cols; i++){
+            btn.add(new gbutton());
+        }
+        connectButton();
+        countFlags = difficult.n_mines;
+    }
+
+    public void continueBoard(GameManager game) {
+        difficult = game.difficult;
+        btn = game.btn;
+        countFlags = game.countFlags;
+        if(game.getFlagMouseButton() == Qt.MouseButton.RightButton){
+            setFlagButtonR();
+        } else {
+            setFlagButtonL();
+        }
+        initWidgets();
+        connectButton();
+        setFilled();
+    }
+
+    private void connectButton() {
+        for (int r = 0, c = 0, i = 0; i < difficult.rows * difficult.cols; i++) {
+            //if(btn.get(i).qbtn.rclicked == null) btn.get(i).resetQbtn();
+            gbox.addWidget(btn.get(i).qbtn, r, c++, 1, 1);
+            if (c / difficult.cols == 1) {
+                r++;
+                c = 0;
+            }
+            btn.get(i).qbtn.clicked.connect(this::openCellEvent);
+            btn.get(i).qbtn.rclicked.connect(this::FlagCell);
+        }
+    }
+
+    private void initWidgets(){
+        gboxWidget = new QWidget();
+        gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
         QRect rect =  QApplication.activeWindow().getRect();
         topPanel = new QWidget(widget);
         topPanel.setGeometry(0,0, rect.width(), 40);
         topPanel.setPalette(new QPalette(Qt.GlobalColor.white));
         topPanel.setAutoFillBackground(true);
-        countFlags = difficult.n_mines;
         flagCounter = new QLabel(topPanel);
         flagCounter.setNum(countFlags);
         flagCounter.setAlignment(Qt.AlignmentFlag.AlignAbsolute);
@@ -67,22 +112,8 @@ class GameManager extends GameBoard {
         scroll.setWidgetResizable(false);
 
 
-        QGridLayout gbox = new QGridLayout(gboxWidget);
+        gbox = new QGridLayout(gboxWidget);
         gboxWidget.setAutoFillBackground(false);
-
-
-        btn = new ArrayList<>();
-        for (int r = 0, c = 0, i = 0; i < difficult.rows * difficult.cols; i++) {
-            btn.add(new gbutton());
-            gbox.addWidget(btn.get(i).qbtn, r, c++, 1, 1);
-            if (c / difficult.cols == 1) {
-                r++;
-                c = 0;
-            }
-            btn.get(i).qbtn.clicked.connect(this::openCellEvent);
-            btn.get(i).qbtn.rclicked.connect(this::FlagCell);
-        }
-        countFlags = difficult.n_mines;
         gbox.setAlignment(Qt.AlignmentFlag.AlignCenter);
         gbox.setSpacing(1);
     }
@@ -127,18 +158,16 @@ class GameManager extends GameBoard {
             setWin(false);
             setEnd();
         } else {
-            if (!btn.get((row) * difficult.cols + col).isMine) {
-                if (countAdjacentMines(row, col) == 0) {
-                    QPalette p = new QPalette();
-                    p.setBrush(QPalette.ColorRole.Button, Qt.GlobalColor.darkGray);
-                    btn.get((row) * difficult.cols + col).qbtn.setPalette(p);
-                    btn.get((row) * difficult.cols + col).qbtn.setEnabled(false);
-                    revealAdjacentCells(row, col);
-                } else {
-                    handleNumberButtonClick(row, col);
-                }
-
+            if (countAdjacentMines(row, col) == 0) {
+                QPalette p = new QPalette();
+                p.setBrush(QPalette.ColorRole.Button, Qt.GlobalColor.darkGray);
+                btn.get((row) * difficult.cols + col).qbtn.setPalette(p);
+                btn.get((row) * difficult.cols + col).qbtn.setEnabled(false);
+                revealAdjacentCells(row, col);
+            } else {
+                handleNumberButtonClick(row, col);
             }
+            btn.get((row) * difficult.cols + col).setOpened(true);
             if (!isEnd())
                 checkWinCondition();
         }
@@ -281,31 +310,11 @@ class GameManager extends GameBoard {
     public void setAllFlags() {
         for (gbutton gbutton : btn) {
             if (gbutton.isMine && !gbutton.isFlagged) {
-                setFlag(gbutton.qbtn);
+                gbutton.setFlag();
+                countFlags--;
+                flagCounter.setNum(countFlags);
             }
         }
-    }
-
-    private void setFlag(QPushButton button) {
-        int[] position = findButton(button);
-        button.setText("F");
-        countFlags--;
-        flagCounter.setNum(countFlags);
-        btn.get((position[0]) * difficult.cols + position[1]).isFlagged = true;
-        QPalette p = new QPalette();
-        p.setBrush(QPalette.ColorRole.Button, Qt.GlobalColor.darkRed);
-        btn.get((position[0]) * difficult.cols + position[1]).qbtn.setPalette(p);
-    }
-
-    private void unSetFlag(QPushButton button) {
-        int[] position = findButton(button);
-        button.setText("");
-        countFlags++;
-        flagCounter.setNum(countFlags);
-        QPalette p = new QPalette();
-        p.setBrush(QPalette.ColorRole.Button, Qt.GlobalColor.white);
-        btn.get((position[0]) * difficult.cols + position[1]).qbtn.setPalette(p);
-        btn.get((position[0]) * difficult.cols + position[1]).isFlagged = false;
     }
 
     private void openCellEvent() {
@@ -332,10 +341,19 @@ class GameManager extends GameBoard {
             return;
         int[] position = findButton(button);
         if (btn.get((position[0]) * difficult.cols + position[1]).isFlagged) {
-            unSetFlag(button);
+            btn.get((position[0]) * difficult.cols + position[1]).unSetFlag();
+            button.setText("");
+            countFlags++;
+            flagCounter.setNum(countFlags);
         } else if (countFlags > 0) {
-            setFlag(button);
+            btn.get((position[0]) * difficult.cols + position[1]).setFlag();
+            countFlags--;
+            flagCounter.setNum(countFlags);
         }
+    }
+
+    public ArrayList<gbutton> getButtons() {
+        return btn;
     }
 
     public void resize() {
