@@ -358,8 +358,8 @@ public class GameManager extends GameBoard {
     }
 
     public void resize() {
-        topPanel.setGeometry(0,0, widget.width(), 40);
+        topPanel.setGeometry(0,0, widget.width(), 30);
         flagCounter.setGeometry(widget.width()/2,flagCounter.geometry().y(), widget.width(), flagCounter.geometry().height());
-        scroll.setFixedSize(widget.width(),widget.height()-50);
+        scroll.setFixedSize(widget.width(),widget.height()-30);
     }
 }
