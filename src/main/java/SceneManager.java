@@ -92,7 +92,6 @@ public class SceneManager extends QMainWindow {
         });
         connect(startNewGame, (Difficult.difficulty dif) ->{
             qInfo("NewGame\nInitialisation Game.GameBoard...");
-            GameSave.deleteFile();
             difficultyWidget.close();
             setGameBoard(dif);
             qInfo("Game.GameBoard created");
@@ -145,11 +144,14 @@ public class SceneManager extends QMainWindow {
             QSize Size= new QSize(Math.min(Math.max(mainmenuWidget.width() / 2, 200),600),
                     Math.min(Math.max(mainmenuWidget.height() / 13, 40), 80));
             NewGame_btn.setFixedSize(Size);
-            Continue_btn.setFixedSize(Size);
+
             QFont Font = NewGame_btn.font();
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
-            Continue_btn.setFont(Font);
+            if (Continue_btn != null) {
+                Continue_btn.setFont(Font);
+                Continue_btn.setFixedSize(Size);
+            }
         }
         else if(this.centralWidget() == difficultyWidget) {
             QSize Size= new QSize(Math.min(Math.max(difficultyWidget.width() / 2, 150),500),
@@ -190,7 +192,9 @@ public class SceneManager extends QMainWindow {
        else{
            QMessageBox.information(this, "Game Over", "You hit a mine! Game over.");
        }
-       GameSave.deleteFile();
+       if (GameSave.deleteFile()){
+           Continue_btn = null;
+       }
        gm.dispose();
        initMMWidget();
        gameboardWidget.close();
