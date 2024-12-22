@@ -1,12 +1,12 @@
-package Game;
+package game;
 
 import java.io.Serializable;
 
 public class Difficult implements Serializable {
 
-    public int n_mines;
-    public int rows;
-    public int cols;
+    public final int n_mines;
+    public final int rows;
+    public final int cols;
 
     Difficult(int n_mines, int rows, int cols) {
         this.n_mines = n_mines;

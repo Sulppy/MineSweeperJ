@@ -1,12 +1,11 @@
-import Game.Difficult;
-import Game.GameManager;
+import game.Difficult;
+import game.GameManager;
 import io.qt.core.*;
 import io.qt.gui.QCloseEvent;
 import io.qt.gui.QFont;
 import io.qt.gui.QResizeEvent;
 import io.qt.widgets.*;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import static io.qt.core.QLogging.*;
@@ -26,7 +25,6 @@ public class SceneManager extends QMainWindow {
     ArrayList<QPushButton> difficultyButtons;
 
     QVBoxLayout mainmenuLayout;
-    QVBoxLayout gameboardLayout;
     QVBoxLayout difficultyLayout;
 
     GameManager gm;
@@ -43,9 +41,7 @@ public class SceneManager extends QMainWindow {
         difficultyButtons = new ArrayList<>();
         for(Difficult.difficulty dif : Difficult.difficulty.values()){
             difficultyButtons.add(new QPushButton(dif.getName(),difficultyWidget));
-            connect(difficultyButtons.getLast().clicked, ()->{
-                startNewGame.emit(dif);
-            });
+            connect(difficultyButtons.getLast().clicked, ()-> startNewGame.emit(dif));
             difficultyLayout.addWidget(difficultyButtons.getLast(), 0, AlignCenter);
         }
         difficultyLayout.setSpacing(20);
@@ -71,7 +67,7 @@ public class SceneManager extends QMainWindow {
     }
 
     public void setupStateMachine() {
-         connect(setmainMenu, () ->{
+         connect(setMainMenu, () ->{
             setMainMenu();
             mainMenu.emit();
         });
@@ -100,7 +96,7 @@ public class SceneManager extends QMainWindow {
             setGameBoard(dif);
             qInfo("Game.GameBoard created");
         });
-        setmainMenu.emit();
+        setMainMenu.emit();
         qInfo("State Machine was started");
     }
 
@@ -114,7 +110,6 @@ public class SceneManager extends QMainWindow {
     void initGBWidget() //Инициализация нового gameboardWidget
     {
         gameboardWidget = new QWidget(this);
-        gameboardLayout = new QVBoxLayout(gameboardWidget);
         gameboardWidget.setAttribute(WA_DeleteOnClose);
     }
 
@@ -177,7 +172,7 @@ public class SceneManager extends QMainWindow {
     }
 
 //Основные сигналы для смены состояний приложения
-    public final Signal0 setmainMenu = new Signal0();
+    public final Signal0 setMainMenu = new Signal0();
     public final Signal0 mainMenu = new Signal0();
     public final Signal0 chooseDifficult = new Signal0();
     public final Signal0 continueGame = new Signal0();
@@ -196,7 +191,7 @@ public class SceneManager extends QMainWindow {
        gm.dispose();
        initMMWidget();
        gameboardWidget.close();
-       setmainMenu.emit();
+       setMainMenu.emit();
    }
 
 }

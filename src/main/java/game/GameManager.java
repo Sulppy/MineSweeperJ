@@ -1,12 +1,10 @@
-package Game;
+package game;
 
-import io.qt.QtMetaType;
 import io.qt.core.*;
 import io.qt.gui.*;
 import io.qt.widgets.*;
-import io.qt.core.Qt;
 
-import java.io.Serializable;
+import java.util.Objects;
 import java.util.Random;
 
 import java.util.ArrayList;
@@ -16,11 +14,9 @@ public class GameManager extends GameBoard {
     private ArrayList<gbutton> btn;
     QScrollArea scroll;
     private QLabel flagCounter;
-    private boolean isEmited;
+    private boolean isEmitted;
     private QWidget widget;
     protected QWidget topPanel;
-    private QWidget gboxWidget;
-    private final int indent = 50;
     private QGridLayout gbox;
 
     public final Signal1<Boolean> endGame = new Signal1<>();
@@ -73,7 +69,6 @@ public class GameManager extends GameBoard {
 
     private void connectButton() {
         for (int r = 0, c = 0, i = 0; i < difficult.rows * difficult.cols; i++) {
-            //if(btn.get(i).qbtn.rclicked == null) btn.get(i).resetQbtn();
             gbox.addWidget(btn.get(i).qbtn, r, c++, 1, 1);
             if (c / difficult.cols == 1) {
                 r++;
@@ -85,9 +80,10 @@ public class GameManager extends GameBoard {
     }
 
     private void initWidgets(){
-        gboxWidget = new QWidget();
+        QWidget gboxWidget = new QWidget();
+        int indent = 50;
         gboxWidget.setFixedSize(difficult.cols * 30 + indent, difficult.rows * 30 + indent);
-        QRect rect =  QApplication.activeWindow().getRect();
+        QRect rect =  Objects.requireNonNull(QApplication.activeWindow()).getRect();
         topPanel = new QWidget(widget);
         topPanel.setGeometry(0,0, rect.width(), 40);
         topPanel.setPalette(new QPalette(Qt.GlobalColor.white));
@@ -303,8 +299,8 @@ public class GameManager extends GameBoard {
         setEnd();
     }
 
-    public void setEmited() {
-        isEmited = true;
+    public void setEmitted() {
+        isEmitted = true;
     }
 
     public void setAllFlags() {
@@ -323,12 +319,12 @@ public class GameManager extends GameBoard {
         if (!isBoardFilled())
             fillBoard(button);
         clickOnBoard(button);
-        if (isWinCondition() && !isEmited && isEnd()) {
+        if (isWinCondition() && !isEmitted && isEnd()) {
             setAllFlags();
-            setEmited();
+            setEmitted();
             endGame.emit(isWinCondition());
-        } else if (!isEmited && isEnd()) {
-            setEmited();
+        } else if (!isEmitted && isEnd()) {
+            setEmitted();
             endGame.emit(isWinCondition());
         }
     }

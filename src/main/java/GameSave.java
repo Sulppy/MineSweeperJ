@@ -1,9 +1,7 @@
-import Game.Difficult;
-import Game.GameManager;
-import Game.gbutton;
-import Game.qGameButtons;
-import io.qt.Nullable;
-import io.qt.QtMetaType;
+import game.Difficult;
+import game.GameManager;
+import game.gbutton;
+import game.qGameButtons;
 import io.qt.core.*;
 import io.qt.gui.QColor;
 import io.qt.gui.QPalette;

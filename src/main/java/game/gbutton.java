@@ -1,21 +1,16 @@
-package Game;
+package game;
 
-import io.qt.QtMetaType;
 import io.qt.core.Qt;
 import io.qt.gui.QPalette;
-import io.qt.widgets.QPushButton;
-
 import java.io.Serializable;
-
-import static io.qt.core.QLogging.qInfo;
 
 public class gbutton implements Serializable {
     public int num;
     public boolean isMine;
-    public boolean isFlagged = false;
+    public boolean isFlagged;
     private boolean isOpened = false;
 
-    public qGameButtons qbtn;
+    public transient qGameButtons qbtn;
 
     public gbutton() {
         isFlagged = false;

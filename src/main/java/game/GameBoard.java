@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import io.qt.core.Qt;
 import io.qt.widgets.QWidget;
