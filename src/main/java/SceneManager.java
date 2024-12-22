@@ -20,6 +20,7 @@ public class SceneManager extends QMainWindow {
     private QWidget difficultyWidget;
 
     QPushButton NewGame_btn;
+    QPushButton Continue_btn;
 
 
     ArrayList<QPushButton> difficultyButtons;
@@ -53,7 +54,7 @@ public class SceneManager extends QMainWindow {
         mainmenuLayout.setSpacing(20);
         mainmenuLayout.setAlignment(AlignCenter);
         if(GameSave.checkFile()){
-            QPushButton Continue_btn = new QPushButton("Continue", mainmenuWidget);
+            Continue_btn = new QPushButton("Continue", mainmenuWidget);
             mainmenuLayout.addWidget(Continue_btn, 0, AlignCenter);
             connect(Continue_btn.clicked, continueGame);
         }
@@ -144,9 +145,11 @@ public class SceneManager extends QMainWindow {
             QSize Size= new QSize(Math.min(Math.max(mainmenuWidget.width() / 2, 200),600),
                     Math.min(Math.max(mainmenuWidget.height() / 13, 40), 80));
             NewGame_btn.setFixedSize(Size);
+            Continue_btn.setFixedSize(Size);
             QFont Font = NewGame_btn.font();
             Font.setPointSizeF(NewGame_btn.height() / 2.5 > 12 ? NewGame_btn.height() / 2.5 : 12);
             NewGame_btn.setFont(Font);
+            Continue_btn.setFont(Font);
         }
         else if(this.centralWidget() == difficultyWidget) {
             QSize Size= new QSize(Math.min(Math.max(difficultyWidget.width() / 2, 150),500),
