@@ -23,6 +23,7 @@ public class GameSave {
     // Метод для сохранения прогресса игры в файл
     public static void saveGame(GameManager gameManager) {
         if(!gameManager.isBoardFilled()) return;
+        checkDirectory();
         if(checkFile()) {
             deleteFile();
         }
@@ -42,6 +43,11 @@ public class GameSave {
         dataStream.writeObject(flagMB);
         file.close();
         qInfo("Game Saved");
+    }
+
+    private static void checkDirectory(){
+        File file = new File("./saves");
+        if(!file.exists()) file.mkdir();
     }
 
     // Метод для загрузки прогресса игры из файла
