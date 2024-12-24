@@ -11,7 +11,7 @@ import static io.qt.gui.QGradient.Preset.*;
 import static io.qt.gui.QPalette.ColorGroup.*;
 
 public class MainWindow extends QWidget {
-    static void setMainSettings(QWidget mainwindow) {
+    public static void setMainSettings(QWidget mainwindow) {
         QSize MinWindowSize = new QSize(300,200);
         mainwindow.setWindowFlags(WindowType.Window);
         mainwindow.setMinimumSize(MinWindowSize);
@@ -26,16 +26,16 @@ public class MainWindow extends QWidget {
         mainwindow.setAutoFillBackground(true);
     }
 
-    static void setDefaultSize(QWidget mainwindow) {
+    public static void setDefaultSize(QWidget mainwindow) {
         setSize(600,400,mainwindow);
     }
 
-    static void setSize(int w, int h, QWidget mainwindow) {
+    public static void setSize(int w, int h, QWidget mainwindow) {
         QSize WindowSize = new QSize(w,h);
         mainwindow.resize(WindowSize);
     }
 
-    static void resetCurrentSize(QWidget mainwindow) {
+    public static void resetCurrentSize(QWidget mainwindow) {
         QSize WindowSize = mainwindow.size();
         setSize(WindowSize.width()+1, WindowSize.height(), mainwindow);
         setSize(WindowSize.width()-1, WindowSize.height(), mainwindow);

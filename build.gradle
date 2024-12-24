@@ -12,6 +12,10 @@ project.ext.lwjgl3awtVersion = "0.1.8"
 project.ext.jomlVersion = "1.10.7"
 project.ext.qtjambiVersion = "6.7.3"
 
+configurations {
+    umlDoclet
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
@@ -46,6 +50,8 @@ repositories {
 dependencies {
     implementation "io.qtjambi:qtjambi:${qtjambiVersion}"
     runtimeOnly "io.qtjambi:qtjambi-${qtNatives}:${qtjambiVersion}"
+
+    umlDoclet "nl.talsmasoftware:umldoclet:2.2.1"
 }
 
 application {
@@ -63,4 +69,10 @@ launch4j{
     requires64Bit = true
     copyConfigurable = []
     jarTask = project.tasks.shadowJar
+}
+
+javadoc{
+    source = sourceSets.main.allJava
+    options.docletpath = configurations.umlDoclet.files.asType(List)
+    options.doclet = "nl.talsmasoftware.umldoclet.UMLDoclet"
 }

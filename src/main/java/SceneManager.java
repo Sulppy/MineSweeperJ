@@ -19,16 +19,16 @@ public class SceneManager extends QMainWindow {
     private QWidget gameboardWidget;
     private QWidget difficultyWidget;
 
-    QPushButton NewGame_btn;
-    QPushButton Continue_btn;
+    private QPushButton NewGame_btn;
+    private QPushButton Continue_btn;
 
 
-    ArrayList<QPushButton> difficultyButtons;
+    private ArrayList<QPushButton> difficultyButtons;
 
-    QVBoxLayout mainmenuLayout;
-    QVBoxLayout difficultyLayout;
+    private QVBoxLayout mainmenuLayout;
+    private QVBoxLayout difficultyLayout;
 
-    GameManager gm;
+    private GameManager gm;
 
     public SceneManager() {
         super((QWidget) null);
@@ -67,7 +67,7 @@ public class SceneManager extends QMainWindow {
         this.setCentralWidget(mainmenuWidget);
     }
 
-    public void setupStateMachine() {
+    private void setupStateMachine() {
          connect(setMainMenu, () ->{
             setMainMenu();
             mainMenu.emit();
@@ -100,14 +100,14 @@ public class SceneManager extends QMainWindow {
         qInfo("State Machine was started");
     }
 
-    void initMMWidget() //Инициализация нового mainmenuWidget
+    private void initMMWidget() //Инициализация нового mainmenuWidget
     {
         mainmenuWidget = new QWidget(this);
         mainmenuLayout = new QVBoxLayout(mainmenuWidget);
         mainmenuWidget.setAttribute(WA_DeleteOnClose); //Аттрибут, чтобы виджет удалился при закрытии ( mainmenuWidget.
     }
 
-    void initGBWidget() //Инициализация нового gameboardWidget
+    private void initGBWidget() //Инициализация нового gameboardWidget
     {
         gameboardWidget = new QWidget(this);
         gameboardWidget.setAttribute(WA_DeleteOnClose);
@@ -120,7 +120,7 @@ public class SceneManager extends QMainWindow {
         difficultyWidget.setAttribute(WA_DeleteOnClose);
     }
 
-    void setGameBoard(Difficult.difficulty dif) {
+    private void setGameBoard(Difficult.difficulty dif) {
         initGBWidget();
         gm = new GameManager();
         gm.endGame.connect(this::onEndGame);
@@ -129,7 +129,7 @@ public class SceneManager extends QMainWindow {
         setCentralWidget(gameboardWidget);
     }
 
-    void setGameBoard(GameManager gameManager){
+    private void setGameBoard(GameManager gameManager){
         initGBWidget();
         gm = new GameManager();
         gm.endGame.connect(this::onEndGame);

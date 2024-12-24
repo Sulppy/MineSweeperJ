@@ -15,10 +15,10 @@ import static io.qt.core.QLogging.qInfo;
 public class GameSave {
     private static final String filePath = "./saves/game.bin";
 
-    static private Difficult difficult;
-    static private int countFlags;
-    static private ArrayList<gbutton> btn;
-    static private Qt.MouseButton flagMB;
+    private static Difficult difficult;
+    private static int countFlags;
+    private static ArrayList<gbutton> btn;
+    private static Qt.MouseButton flagMB;
 
     // Метод для сохранения прогресса игры в файл
     public static void saveGame(GameManager gameManager) {
@@ -84,16 +84,16 @@ public class GameSave {
                 b.qbtn.setFixedSize(30, 30);
                 if(b.isOpened()){
 
-                    if (b.num == 0){
+                    if (b.getNum() == 0){
                         QPalette p = new QPalette();
                         p.setBrush(QPalette.ColorRole.Button, Qt.GlobalColor.darkGray);
                         b.qbtn.setPalette(p);
                         b.qbtn.setEnabled(false);
                     } else{
-                        b.qbtn.setText(String.valueOf(QString.number(b.num)));
+                        b.qbtn.setText(String.valueOf(QString.number(b.getNum())));
                         QPalette p = new QPalette();
                         p.setColor(QPalette.ColorRole.Button, Qt.GlobalColor.gray);
-                        switch (b.num) {
+                        switch (b.getNum()) {
                             case 1:
                                 p.setBrush(QPalette.ColorRole.ButtonText, Qt.GlobalColor.darkCyan);
                                 break;
@@ -122,7 +122,7 @@ public class GameSave {
                         b.qbtn.setPalette(p);
                     }
                 }
-                else if(b.isFlagged){
+                else if(b.isFlagged()){
                     b.setFlag();
                 }
                 else {

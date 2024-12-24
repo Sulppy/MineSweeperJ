@@ -14,7 +14,7 @@ import static io.qt.core.QLogging.*;
 public class GameManager extends GameBoard {
 
     private ArrayList<gbutton> btn;
-    QScrollArea scroll;
+    private QScrollArea scroll;
     private QLabel flagCounter;
     private boolean isEmitted;
     private QWidget widget;
@@ -140,7 +140,7 @@ public class GameManager extends GameBoard {
         for (int i = position[0] - 1; i <= position[0] + 1; i++)
             for (int j = position[1] - 1; j <= position[1] + 1; ++j) {
                 try {
-                    btn.get((i) * difficult.cols + j).num = 0;
+                    btn.get((i) * difficult.cols + j).setNum(0);
                 } catch (Exception ignored) {
                 }
             }
@@ -150,7 +150,7 @@ public class GameManager extends GameBoard {
     }
 
     private void checkCell(int row, int col) {
-        if (btn.get((row) * difficult.cols + col).isMine) {
+        if (btn.get((row) * difficult.cols + col).isMine()) {
             QPalette palette = new QPalette();
             palette.setColor(QPalette.ColorRole.Button, Qt.GlobalColor.white);
             palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.black);
@@ -174,35 +174,35 @@ public class GameManager extends GameBoard {
         }
     }
 
-    void placeMines() {
+    private void placeMines() {
         int placedMines = 0;
         while (placedMines < difficult.n_mines) {
             int row = new Random().nextInt(difficult.rows);
             int col = new Random().nextInt(difficult.cols);
-            if (!btn.get((row) * difficult.cols + col).isMine && btn.get((row) * difficult.cols + col).num < 0) {
-                btn.get((row) * difficult.cols + col).isMine = true;
+            if (!btn.get((row) * difficult.cols + col).isMine() && btn.get((row) * difficult.cols + col).getNum() < 0) {
+                btn.get((row) * difficult.cols + col).setMine(true);
                 ++placedMines;
             }
         }
     }
 
-    void calculateAdjacentMines() {
+    private void calculateAdjacentMines() {
         for (int row = 0; row < difficult.rows; ++row) {
             for (int col = 0; col < difficult.cols; ++col) {
-                if (btn.get((row) * difficult.cols + col).isMine) continue;
-                btn.get((row) * difficult.cols + col).num = countAdjacentMines(row, col);
+                if (btn.get((row) * difficult.cols + col).isMine()) continue;
+                btn.get((row) * difficult.cols + col).setNum(countAdjacentMines(row, col));
             }
         }
     }
 
-    int countAdjacentMines(int row, int col) {
+    private int countAdjacentMines(int row, int col) {
         int mineCount = 0;
         for (int i = -1; i <= 1; ++i) {
             for (int j = -1; j <= 1; ++j) {
                 int newRow = row + i;
                 int newCol = col + j;
                 if (newRow >= 0 && newRow < difficult.rows && newCol >= 0 && newCol < difficult.cols &&
-                        btn.get((newRow) * difficult.cols + newCol).isMine) {
+                        btn.get((newRow) * difficult.cols + newCol).isMine()) {
                     ++mineCount;
                 }
             }
@@ -210,13 +210,13 @@ public class GameManager extends GameBoard {
         return mineCount;
     }
 
-    int countAdjacentFlags(int row, int col) {
+    private int countAdjacentFlags(int row, int col) {
         int flagCount = 0;
         for (int i = -1; i <= 1; ++i) {
             for (int j = -1; j <= 1; ++j) {
                 int newRow = row + i;
                 int newCol = col + j;
-                if (newRow >= 0 && newRow < difficult.rows && newCol >= 0 && newCol < difficult.cols && btn.get((newRow) * difficult.cols + newCol).isFlagged) {
+                if (newRow >= 0 && newRow < difficult.rows && newCol >= 0 && newCol < difficult.cols && btn.get((newRow) * difficult.cols + newCol).isFlagged()) {
                     ++flagCount;
                 }
             }
@@ -225,14 +225,14 @@ public class GameManager extends GameBoard {
     }
 
     //проверяем соседние клетки
-    void revealAdjacentCells(int row, int col) {
+    private void revealAdjacentCells(int row, int col) {
         for (int i = -1; i <= 1; ++i) {
             for (int j = -1; j <= 1; ++j) {
                 if (isEnd())
                     break;
                 int newRow = row + i;
                 int newCol = col + j;
-                if (newRow >= 0 && newRow < difficult.rows && newCol >= 0 && newCol < difficult.cols && btn.get((newRow) * difficult.cols + newCol).qbtn.isEnabled() && !btn.get((newRow) * difficult.cols + newCol).isFlagged && btn.get((newRow) * difficult.cols + newCol).qbtn.text().isEmpty()) {
+                if (newRow >= 0 && newRow < difficult.rows && newCol >= 0 && newCol < difficult.cols && btn.get((newRow) * difficult.cols + newCol).qbtn.isEnabled() && !btn.get((newRow) * difficult.cols + newCol).isFlagged() && btn.get((newRow) * difficult.cols + newCol).qbtn.text().isEmpty()) {
                     clickOnBoard(btn.get((newRow) * difficult.cols + newCol).qbtn);
                 }
             }
@@ -244,7 +244,7 @@ public class GameManager extends GameBoard {
     private void clickOnBoard(QPushButton button) {
         if (button == null) return;
         int[] position = findButton(button);
-        if (btn.get((position[0]) * difficult.cols + position[1]).isFlagged)
+        if (btn.get((position[0]) * difficult.cols + position[1]).isFlagged())
             return;
         checkCell(position[0], position[1]);
         if (!isEnd())
@@ -253,16 +253,16 @@ public class GameManager extends GameBoard {
 
 
     //Считаем и выставляем число в клетку - количество мин вокруг клетки
-    void handleNumberButtonClick(int row, int col) {
-        if (countAdjacentFlags(row, col) == btn.get((row) * difficult.cols + col).num && !btn.get((row) * difficult.cols + col).qbtn.text().isEmpty()) {
+    private void handleNumberButtonClick(int row, int col) {
+        if (countAdjacentFlags(row, col) == btn.get((row) * difficult.cols + col).getNum() && !btn.get((row) * difficult.cols + col).qbtn.text().isEmpty()) {
             revealAdjacentCells(row, col);
         }
         if (!isEnd()) {
-            btn.get((row) * difficult.cols + col).qbtn.setText(String.valueOf(QString.number(btn.get((row) * difficult.cols + col).num)));
+            btn.get((row) * difficult.cols + col).qbtn.setText(String.valueOf(QString.number(btn.get((row) * difficult.cols + col).getNum())));
             QPalette p = new QPalette();
             p.setColor(QPalette.ColorRole.Button, Qt.GlobalColor.gray);
 
-            switch (btn.get(row * difficult.cols + col).num) {
+            switch (btn.get(row * difficult.cols + col).getNum()) {
                 case 1:
                     p.setBrush(QPalette.ColorRole.ButtonText, Qt.GlobalColor.darkCyan);
                     break;
@@ -292,10 +292,10 @@ public class GameManager extends GameBoard {
         }
     }
 
-    void checkWinCondition() {
+    private void checkWinCondition() {
         for (int row = 0; row < difficult.rows; ++row) {
             for (int col = 0; col < difficult.cols; ++col) {
-                if (!btn.get((row) * difficult.cols + col).isMine && btn.get((row) * difficult.cols + col).qbtn.isEnabled() && btn.get((row) * difficult.cols + col).qbtn.text().isEmpty()) {
+                if (!btn.get((row) * difficult.cols + col).isMine() && btn.get((row) * difficult.cols + col).qbtn.isEnabled() && btn.get((row) * difficult.cols + col).qbtn.text().isEmpty()) {
                     return;
                 }
             }
@@ -304,13 +304,13 @@ public class GameManager extends GameBoard {
         setEnd();
     }
 
-    public void setEmitted() {
+    private void setEmitted() {
         isEmitted = true;
     }
 
-    public void setAllFlags() {
+    private void setAllFlags() {
         for (gbutton gbutton : btn) {
-            if (gbutton.isMine && !gbutton.isFlagged) {
+            if (gbutton.isMine() && !gbutton.isFlagged()) {
                 gbutton.setFlag();
                 countFlags--;
                 flagCounter.setNum(countFlags);
@@ -341,7 +341,7 @@ public class GameManager extends GameBoard {
         if (!button.text().isEmpty() && !button.text().equals("F") || !button.isEnabled())
             return;
         int[] position = findButton(button);
-        if (btn.get((position[0]) * difficult.cols + position[1]).isFlagged) {
+        if (btn.get((position[0]) * difficult.cols + position[1]).isFlagged()) {
             btn.get((position[0]) * difficult.cols + position[1]).unSetFlag();
             button.setText("");
             countFlags++;

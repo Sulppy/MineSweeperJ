@@ -9,7 +9,7 @@ public class qGameButtons extends QPushButton {
 
     public final  Signal0 rclicked;
 
-    qGameButtons(QWidget parent) {
+    public qGameButtons(QWidget parent) {
         rclicked = new Signal0();
         super.setParent(parent);
     }
